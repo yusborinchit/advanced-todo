@@ -16,6 +16,20 @@ export async function getTodos(userId: typeof todos.$inferSelect.createdById) {
   return { success: true, data: result };
 }
 
+export async function deleteTodo(
+  userId: typeof todos.$inferSelect.createdById,
+  todoId: typeof todos.$inferSelect.id,
+) {
+  const result = await db
+    .delete(todos)
+    .where(and(eq(todos.id, todoId), eq(todos.createdById, userId)))
+    .returning();
+
+  if (!result) return { success: false };
+
+  return { success: true };
+}
+
 export async function toggleTodo(
   userId: typeof todos.$inferSelect.createdById,
   todoId: typeof todos.$inferSelect.id,

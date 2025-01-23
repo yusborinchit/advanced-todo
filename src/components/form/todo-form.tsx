@@ -10,7 +10,6 @@ import { type z } from "zod";
 import { createTodoAction } from "~/actions";
 import { type todos } from "~/server/db/schema";
 import { createTodoFormSchema } from "~/zod-schemas";
-import { Button } from "../ui/button";
 import {
   Form,
   FormControl,
@@ -52,7 +51,10 @@ export default function TodoForm({ parentId }: Readonly<Props>) {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="my-2 flex">
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="my-2 flex items-center gap-2"
+      >
         <input type="hidden" name="parentId" value={parentId} />
         <FormField
           control={form.control}
@@ -60,25 +62,25 @@ export default function TodoForm({ parentId }: Readonly<Props>) {
           render={({ field }) => (
             <FormItem className="flex-1">
               <FormControl>
-                <Input placeholder="Type here..." {...field} />
+                <div className="flex gap-2">
+                  <Input placeholder="Type here..." {...field} />
+                  <button
+                    type="submit"
+                    aria-label={isPending ? "Saving..." : "Create Todo"}
+                    disabled={isPending}
+                  >
+                    {isPending ? (
+                      <Loader2 className="size-4 animate-spin" />
+                    ) : (
+                      <SendHorizontal className="size-4" />
+                    )}
+                  </button>
+                </div>
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
-        <Button
-          size="icon"
-          aria-label={isPending ? "Saving..." : "Create Todo"}
-          disabled={isPending}
-          variant="link"
-          type="submit"
-        >
-          {isPending ? (
-            <Loader2 className="!size-4 animate-spin" />
-          ) : (
-            <SendHorizontal className="!size-4" />
-          )}
-        </Button>
       </form>
     </Form>
   );

@@ -1,10 +1,10 @@
 "use client";
 
-import { ChevronDown, ChevronRight, Loader2 } from "lucide-react";
+import { ChevronDown, ChevronRight, Loader2, Trash } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
-import { toggleTodo } from "~/server/db/queries";
+import { deleteTodoAction, toggleTodoAction } from "~/actions";
 import { type todos } from "~/server/db/schema";
 import TodoForm from "./form/todo-form";
 import { Checkbox } from "./ui/checkbox";
@@ -23,15 +23,27 @@ export default function Todo({ todos, todo }: Readonly<Props>) {
 
   const children = todos.filter((t) => t.parentId === todo.id);
 
+  async function onDelete() {
+    startTransition(async () => {
+      const { success } = await deleteTodoAction(todo.id);
+
+      if (success) {
+        router.refresh();
+        toast.success("Todo deleted successfully", { position: "top-center" });
+      } else {
+        setIsCompleted(todo.completed);
+        toast.error("Something went wrong, please try again", {
+          position: "top-center",
+        });
+      }
+    });
+  }
+
   async function onToggle() {
     setIsCompleted(!todo.completed);
 
     startTransition(async () => {
-      const { success } = await toggleTodo(
-        todo.createdById,
-        todo.id,
-        !todo.completed,
-      );
+      const { success } = await toggleTodoAction(todo.id, !todo.completed);
 
       if (success) {
         router.refresh();
@@ -52,9 +64,9 @@ export default function Todo({ todos, todo }: Readonly<Props>) {
       >
         <button onClick={() => setIsExpanded(!isExpanded)}>
           {isExpanded ? (
-            <ChevronDown className="opacity-25" />
+            <ChevronDown className="size-5 opacity-25" />
           ) : (
-            <ChevronRight className="opacity-25" />
+            <ChevronRight className="size-5 opacity-25" />
           )}
         </button>
         {isPending ? (
@@ -78,6 +90,13 @@ export default function Todo({ todos, todo }: Readonly<Props>) {
             <span className="ml-2 text-sm text-neutral-300">Saving...</span>
           )}
         </label>
+        <button aria-label="Delete" onClick={onDelete} className="text-red-500">
+          {isPending ? (
+            <Loader2 className="size-4 animate-spin" />
+          ) : (
+            <Trash className="size-4" />
+          )}
+        </button>
       </li>
       {isExpanded && (
         <div className="ml-8 flex flex-col">
