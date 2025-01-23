@@ -1,9 +1,13 @@
 "use client";
 
+import { ChevronDown, ChevronRight, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
+import { toast } from "sonner";
 import { toggleTodo } from "~/server/db/queries";
 import { type todos } from "~/server/db/schema";
+import TodoForm from "./form/todo-form";
+import { Checkbox } from "./ui/checkbox";
 
 interface Props {
   todos: (typeof todos.$inferSelect)[];
@@ -15,6 +19,7 @@ export default function Todo({ todos, todo }: Readonly<Props>) {
 
   const [isPending, startTransition] = useTransition();
   const [isCompleted, setIsCompleted] = useState(todo.completed);
+  const [isExpanded, setIsExpanded] = useState(false);
 
   const children = todos.filter((t) => t.parentId === todo.id);
 
@@ -32,6 +37,9 @@ export default function Todo({ todos, todo }: Readonly<Props>) {
         router.refresh();
       } else {
         setIsCompleted(todo.completed);
+        toast.error("Something went wrong, please try again", {
+          position: "top-center",
+        });
       }
     });
   }
@@ -40,27 +48,40 @@ export default function Todo({ todos, todo }: Readonly<Props>) {
     <>
       <li
         data-completed={isCompleted}
-        className="group flex gap-2 hover:cursor-pointer data-[completed=true]:opacity-50"
+        className="group flex items-center gap-2"
       >
-        <input
-          id={`${todo.id}`}
-          disabled={isPending}
-          type="checkbox"
-          onChange={onToggle}
-          checked={isCompleted}
-          className="hover:cursor-pointer"
-        />
-        <label htmlFor={`${todo.id}`} className="w-full hover:cursor-pointer">
+        <button onClick={() => setIsExpanded(!isExpanded)}>
+          {isExpanded ? (
+            <ChevronDown className="opacity-25" />
+          ) : (
+            <ChevronRight className="opacity-25" />
+          )}
+        </button>
+        {isPending ? (
+          <Loader2 className="size-4 animate-spin" />
+        ) : (
+          <Checkbox
+            id={`${todo.id}`}
+            onCheckedChange={onToggle}
+            checked={isCompleted}
+            className="hover:cursor-pointer"
+          />
+        )}
+        <label
+          htmlFor={`${todo.id}`}
+          className="w-full py-2 hover:cursor-pointer"
+        >
           <span className="group-data-[completed=true]:line-through">
             {todo.name}
           </span>
           {isPending && (
-            <span className="ml-2 text-sm text-neutral-500">Saving...</span>
+            <span className="ml-2 text-sm text-neutral-300">Saving...</span>
           )}
         </label>
       </li>
-      {children.length > 0 && (
-        <div className="ml-8 flex flex-col gap-4">
+      {isExpanded && (
+        <div className="ml-8 flex flex-col">
+          <TodoForm parentId={todo.id} />
           {children.map((t) => (
             <Todo key={t.id} todos={todos} todo={t} />
           ))}

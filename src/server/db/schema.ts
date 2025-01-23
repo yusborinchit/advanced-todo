@@ -16,7 +16,7 @@ export const todos = createTable(
   "todo",
   {
     id: int("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
-    parentId: int("parent_id", { mode: "number" }),
+    parentId: int("parent_id", { mode: "number" }).notNull().default(-1),
     name: text("name", { length: 256 }).notNull(),
     completed: int("completed", { mode: "boolean" }).notNull().default(false),
     createdById: text("created_by", { length: 255 })

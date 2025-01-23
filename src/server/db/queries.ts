@@ -1,6 +1,6 @@
 "use server";
 
-import { and, eq } from "drizzle-orm";
+import { and, desc, eq } from "drizzle-orm";
 import { db } from ".";
 import { todos } from "./schema";
 
@@ -8,7 +8,8 @@ export async function getTodos(userId: typeof todos.$inferSelect.createdById) {
   const result = await db
     .select()
     .from(todos)
-    .where(eq(todos.createdById, userId));
+    .where(eq(todos.createdById, userId))
+    .orderBy(desc(todos.createdAt));
 
   if (!result) return { success: false, data: [] };
 
@@ -24,6 +25,21 @@ export async function toggleTodo(
     .update(todos)
     .set({ completed })
     .where(and(eq(todos.id, todoId), eq(todos.createdById, userId)));
+
+  if (!result) return { success: false };
+
+  return { success: true };
+}
+
+export async function createTodo(
+  userId: typeof todos.$inferSelect.createdById,
+  parentId: typeof todos.$inferSelect.parentId,
+  name: typeof todos.$inferSelect.name,
+) {
+  const result = await db
+    .insert(todos)
+    .values({ createdById: userId, parentId, name })
+    .returning();
 
   if (!result) return { success: false };
 
