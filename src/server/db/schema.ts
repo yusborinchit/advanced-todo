@@ -17,7 +17,8 @@ export const todos = createTable(
   {
     id: int("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
     parentId: int("parent_id", { mode: "number" }),
-    name: text("name", { length: 256 }),
+    name: text("name", { length: 256 }).notNull(),
+    completed: int("completed", { mode: "boolean" }).notNull().default(false),
     createdById: text("created_by", { length: 255 })
       .notNull()
       .references(() => users.id),
