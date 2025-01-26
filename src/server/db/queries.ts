@@ -1,6 +1,6 @@
 "use server";
 
-import { and, desc, eq } from "drizzle-orm";
+import { and, desc, eq, or } from "drizzle-orm";
 import { db } from ".";
 import { todos } from "./schema";
 
@@ -22,7 +22,12 @@ export async function deleteTodo(
 ) {
   const result = await db
     .delete(todos)
-    .where(and(eq(todos.id, todoId), eq(todos.createdById, userId)))
+    .where(
+      and(
+        or(eq(todos.id, todoId), eq(todos.parentId, todoId)),
+        eq(todos.createdById, userId),
+      ),
+    )
     .returning();
 
   if (!result) return { success: false };

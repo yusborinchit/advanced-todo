@@ -20,7 +20,6 @@ export default function Todo({ todos, todo }: Readonly<Props>) {
   const [isPending, startTransition] = useTransition();
   const [isCompleted, setIsCompleted] = useState(todo.completed);
   const [isExpanded, setIsExpanded] = useState(false);
-
   const children = todos.filter((t) => t.parentId === todo.id);
 
   async function onDelete() {
@@ -29,7 +28,9 @@ export default function Todo({ todos, todo }: Readonly<Props>) {
 
       if (success) {
         router.refresh();
-        toast.success("Todo deleted successfully", { position: "top-center" });
+        toast.success("Todo deleted successfully", {
+          position: "top-center",
+        });
       } else {
         setIsCompleted(todo.completed);
         toast.error("Something went wrong, please try again", {
