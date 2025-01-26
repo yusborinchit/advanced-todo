@@ -18,7 +18,6 @@ export default function Todo({ todos, todo }: Readonly<Props>) {
   const router = useRouter();
 
   const [isPending, startTransition] = useTransition();
-  const [isCompleted, setIsCompleted] = useState(todo.completed);
   const [isExpanded, setIsExpanded] = useState(false);
   const children = todos.filter((t) => t.parentId === todo.id);
 
@@ -32,7 +31,6 @@ export default function Todo({ todos, todo }: Readonly<Props>) {
           position: "top-center",
         });
       } else {
-        setIsCompleted(todo.completed);
         toast.error("Something went wrong, please try again", {
           position: "top-center",
         });
@@ -41,15 +39,12 @@ export default function Todo({ todos, todo }: Readonly<Props>) {
   }
 
   async function onToggle() {
-    setIsCompleted(!todo.completed);
-
     startTransition(async () => {
       const { success } = await toggleTodoAction(todo.id, !todo.completed);
 
       if (success) {
         router.refresh();
       } else {
-        setIsCompleted(todo.completed);
         toast.error("Something went wrong, please try again", {
           position: "top-center",
         });
@@ -60,7 +55,7 @@ export default function Todo({ todos, todo }: Readonly<Props>) {
   return (
     <>
       <li
-        data-completed={isCompleted}
+        data-completed={todo.completed}
         className="group flex items-center gap-2"
       >
         <button onClick={() => setIsExpanded(!isExpanded)}>
@@ -76,7 +71,7 @@ export default function Todo({ todos, todo }: Readonly<Props>) {
           <Checkbox
             id={`${todo.id}`}
             onCheckedChange={onToggle}
-            checked={isCompleted}
+            checked={todo.completed}
             className="hover:cursor-pointer"
           />
         )}
