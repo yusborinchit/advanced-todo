@@ -18,7 +18,7 @@ export default function Todo({ todos, todo }: Readonly<Props>) {
   const router = useRouter();
 
   const [isPending, startTransition] = useTransition();
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(true);
   const children = todos.filter((t) => t.parentId === todo.id);
 
   async function onDelete() {

@@ -22,15 +22,34 @@ export async function deleteTodo(
 ) {
   const result = await db
     .delete(todos)
-    .where(
-      and(
-        or(eq(todos.id, todoId), eq(todos.parentId, todoId)),
-        eq(todos.createdById, userId),
-      ),
-    )
+    .where(and(eq(todos.id, todoId), eq(todos.createdById, userId)))
     .returning();
 
   if (!result) return { success: false };
+
+  await deleteTodoChildren(userId, todoId);
+
+  return { success: true };
+}
+
+export async function deleteTodoChildren(
+  userId: typeof todos.$inferSelect.createdById,
+  todoId: typeof todos.$inferSelect.id,
+) {
+  if (!todoId) return;
+
+  const result = await db
+    .delete(todos)
+    .where(and(eq(todos.parentId, todoId), eq(todos.createdById, userId)))
+    .returning({ id: todos.id });
+
+  if (!result) return { success: false };
+
+  console.log(result);
+
+  await Promise.all(
+    result.map(async (t) => await deleteTodoChildren(userId, t.id)),
+  );
 
   return { success: true };
 }
@@ -39,7 +58,7 @@ export async function toggleTodo(
   userId: typeof todos.$inferSelect.createdById,
   todoId: typeof todos.$inferSelect.id,
   completed: typeof todos.$inferSelect.completed,
-): Promise<{ success: boolean }> {
+) {
   const result = await db
     .update(todos)
     .set({ completed })
