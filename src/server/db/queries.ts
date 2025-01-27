@@ -75,10 +75,7 @@ export async function toggleTodo(
   if (result.length > 1) {
     const [_, ...rest] = result;
     await Promise.all(
-      rest.map(async (t) => {
-        const { success } = await toggleTodo(userId, t.id, completed);
-        return { success };
-      }),
+      rest.map(async (t) => await toggleTodo(userId, t.id, completed)),
     );
   }
 
