@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import GithubButton from "~/components/auth/github-button";
 import ProfileButton from "~/components/auth/profile-button";
 import TodoList from "~/components/todo-list";
 import { ScrollArea, ScrollBar } from "~/components/ui/scroll-area";
@@ -24,25 +23,21 @@ export default async function HomePage() {
           <Link href="/" className="text-xl font-bold tracking-tighter">
             AdvancedTodo
           </Link>
-          {session?.user ? (
-            <ProfileButton user={session.user} />
-          ) : (
-            <GithubButton />
-          )}
+          <ProfileButton user={session.user} />
         </header>
         <main className="mx-auto mb-20 mt-8 w-full max-w-screen-sm px-4">
           <TodoList userId={session.user.id} />
         </main>
-        <div className="mt-auto bg-foreground">
-          <footer className="mx-auto flex max-w-screen-sm flex-col items-center justify-between p-4 text-background md:flex-row">
+        <div className="mt-auto">
+          <footer className="mx-auto flex max-w-screen-sm flex-col items-center justify-between p-4 md:flex-row">
             <a
               href="www.github.com/yusborinchit"
               target="_blank"
-              className="text-lg font-semibold"
+              className="font-semibold tracking-tighter"
             >
               @github/yusborinchit
             </a>
-            <p className="text-sm tracking-tighter opacity-20">
+            <p className="text-sm tracking-tighter text-neutral-500">
               Made with ❤ and Next.js{" "}
             </p>
           </footer>

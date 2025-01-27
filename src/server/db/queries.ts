@@ -45,8 +45,6 @@ export async function deleteTodoChildren(
 
   if (!result) return { success: false };
 
-  console.log(result);
-
   await Promise.all(
     result.map(async (t) => await deleteTodoChildren(userId, t.id)),
   );
